@@ -2,7 +2,8 @@
 #
 # To do:
 # X Assign Genre Tag
-# X Rename album to release year (unless a possible year is found in album name)
+# X Pass metadata correctly
+# - Rename album to release year (unless a possible year is found in album name)
 # - Alert missing important metadata (genre, year, w/e)
 # - Approve spectrograms first
 # - Optional mkbrr
