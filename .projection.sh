@@ -100,22 +100,22 @@ for f in "${FLAC_FILES[@]}"; do
 
 # The raw PCM that goes into LAME has no metadata and we're not using ffmpeg so we're doing this by hand.
 	
-	unset TITL ARTS DATE ALBM TRNO GENR ALRT CMNT # Reset for each track obviously.
+	unset TITL ARTS DATE ALBM TRNO GENR DISC DSCT COMP ALRT CMNT PUBL # Reset for each track obviously.
 	
 	while IFS='=' read -r rawtag rawvalue; do # Fix lead/trail whitespace.	
 		tag=$(echo "$rawtag" | xargs)
 		value=$(echo "$rawvalue" | xargs) 
 		
 		case "${tag^^}" in #Force Caps
-			TITLE)                        TITL="$value" ;; 
+			TITLE)                        TITL="$value" ;; # To do abbreviations, just start spelling it, then quick
 			ARTIST)    	                  ARTS="$value" ;;
-			COMPOSER)                     COMP="$value" ;;
 			DATE)                         DATE="${value:0:4}" ;; #just YYYY
 			ALBUM)                        ALBM="$value" ;;
 			TRACKNUMBER)                  TRNO="$value" ;;
+			GENRE)                        GENR="$value" ;;
 			DISCNUMBER|DISC)              DISC="$value" ;;
 			DISCTOTAL|TOTALDISCS)         DSCT="$value" ;;
-			GENRE)                        GENR="$value" ;;
+			COMPOSER)                     COMP="$value" ;;
 			ALBUMARTIST)                  ALRT="$value" ;; # This and Comment most commonly for Bandcamp.
 			COMMENT|DESCRIPTION|NOTES)    CMNT="$value" ;; # Diff standards. 
 			ORGANIZATION|PUBLISHER|LABEL) PUBL="$value" ;; 
