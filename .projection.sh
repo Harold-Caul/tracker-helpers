@@ -23,7 +23,6 @@
 #
 # You may prefer something different. This is for ease of using mkbrr.
 
-
 function projection {
 shopt -s nullglob
 local FLAC_FILES=(*.flac)
@@ -33,7 +32,7 @@ if [ ${#FLAC_FILES[@]} -eq 0 ]; then
 	return 1
 else
 	echo -e "\nLet's do some quick setup here."
-	echo -e "\nWIP Script means you need to do the following:\n - Rename the directory to include the album year.\n - Find and open the bandcamp URL yourself.\n - Check the spectrographs that will be put in this folder.\n - Run 'for d in */; do mkbrr create -P --preset-- \"$d\"; done'\n"
+	echo -e "\nWIP Script means you need to do the following:\n - Rename the directory to include the album year.\n - Find and open the bandcamp URL yourself.\n - Check the spectrographs that will be put in this folder.\n - Run 'for d in */; do mkbrr create -P Orpheus \"$d\"; done'\n"
 	read -p "Got that?"
 	has_genre=$(metaflac --show-tag=GENRE "${FLAC_FILES[0]}" | cut -d= -f2)
 fi
@@ -43,8 +42,8 @@ if [ -n "$has_genre" ]; then
 	read -p "Overwrite it? (y/N): " choice
 	if [[ "$choice" =~ ^[Yy] ]]; then
 		read -p "Genre tag for all files: " new_genre
-  else	 
-    echo "Heard you, keeping '$has_genre' tag."
+	else
+		echo "Heard you, keeping '$has_genre' tag."
 	fi
 else
 	echo "No genre tag."
@@ -58,9 +57,6 @@ if [ -n "$new_genre" ]; then
   done
 	echo "Set all files to genre tag '$new_genre'."
 fi 
-
-# Current problem is we need to stream this info out of the flac.
-# The raw PCM that goes into LAME has no metadata.
 
 
 local CDIR=$(basename "$PWD")
@@ -77,11 +73,11 @@ local	FLACD="${PDIR}/${ALBUM} - FLAC"
 local	v0D="${PDIR}/${ALBUM} - v0"
 local	cbrD="${PDIR}/${ALBUM} - 320"
 
-
 echo -e "Making v0 mp3 directory:\n$v0D"
 mkdir -p "$v0D"
 echo -e "Making 320kbps mp3 directory:\n$cbrD"
 mkdir -p "$cbrD"
+
 
 local cover_files=(*cover*.* *album*.* *folder*.* *.jpg *.png)
 for art in "${cover_files[@]}"; do
@@ -107,7 +103,7 @@ for f in "${FLAC_FILES[@]}"; do
 		value=$(echo "$rawvalue" | xargs) 
 		
 		case "${tag^^}" in #Force Caps
-			TITLE)                        TITL="$value" ;; # To do abbreviations, just start spelling it, then quick
+			TITLE)                        TITL="$value" ;; 
 			ARTIST)    	                  ARTS="$value" ;;
 			DATE)                         DATE="${value:0:4}" ;; #just YYYY
 			ALBUM)                        ALBM="$value" ;;
@@ -123,19 +119,19 @@ for f in "${FLAC_FILES[@]}"; do
 	done < <(metaflac --export-tags-to=- "$f") # <(~~~) makes a temp "file" and then the < sends it right into the loop. You learn new stuff every day.
   # If we piped it it'd forget all of it the moment it left the loop.
 
-	local id3meta=( # Make an array.
-    -tt "${TITL:-}"
-    -ta "${ARTS:-}"
-    -ty "${DATE:-}"
-    -tl "${ALBM:-}"
-    -tn "${TRNO:-}"
-    -tg "${GENR:-}" 
-		${DISC:+--tv "TPOS=${DISC}${DSCT:+/$DSCT}"}
-		${COMP:+--tv "TCOM=$COMP"}
-    ${ALRT:+--tv "TPE2=$ALRT"} # Why is this ever even put on non-VA albums 
-    ${CMNT:+--comment "$CMNT"} # Bandcamp "visit link" tag most often than not.
-		${PUBL:+--tv "TPUB=$PUBL"}
-  )
+	local id3meta=() # Make an array safely because LAME will brick if a single empty string exists.
+   [[ -n $TITL ]] && id3meta+=("--tt" "$TITL")
+   [[ -n $ARTS ]] && id3meta+=("--ta" "$ARTS")
+   [[ -n $DATE ]] && id3meta+=("--ty" "$DATE")
+   [[ -n $ALBM ]] && id3meta+=("--tl" "$ALBM")
+   [[ -n $TRNO ]] && id3meta+=("--tn" "$TRNO")
+   [[ -n $GENR ]] && id3meta+=("--tg" "$GENR") 
+	 [[ -n $DISC ]] && id3meta+=("--tv" "TPOS=${DISC}${DSCT:+/$DSCT}")
+	 [[ -n $COMP ]] && id3meta+=("--tv" "TCOM=$COMP")
+   [[ -n $ALRT ]] && id3meta+=("--tv" "TPE2=$ALRT") # Why is this ever even put on non-VA albums 
+   [[ -n $CMNT ]] && id3meta+=("--tc" "$CMNT") # Bandcamp "visit link" tag most often than not.
+	 [[ -n $PUBL ]] && id3meta+=("--tv" "TPUB=$PUBL")
+ 
 
 	echo -e "\n-------Doing v0 for $TRACKNAME.-------"
 	
