@@ -4,7 +4,7 @@
 # X Assign Genre Tag
 # X Pass metadata correctly
 # - Rename album to release year (Just ask what the year is since we ask genre too, let's be real.)
-# - Alert missing important metadata (genre, year, w/e)
+# - Alert missing important metadata (genre, year, artist, tracknames, w/e)
 # - Approve spectrograms first
 # - Optional mkbrr
 # - Optional Picard
