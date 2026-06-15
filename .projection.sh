@@ -3,7 +3,7 @@
 # To do:
 # X Assign Genre Tag
 # X Pass metadata correctly
-# - Rename album to release year (unless a possible year is found in album name)
+# - Rename album to release year (Just ask what the year is since we ask genre too, let's be real.)
 # - Alert missing important metadata (genre, year, w/e)
 # - Approve spectrograms first
 # - Optional mkbrr
@@ -22,6 +22,8 @@
 # ├─ Next Album
 #
 # You may prefer something different. This is for ease of using mkbrr.
+#
+# The planned naming scheme will just be "Artist - Album (Year) (Sp-Edition) {LBL001} [FLAC]", likely.
 
 function projection {
 shopt -s nullglob
@@ -151,15 +153,18 @@ mv "$CDIR" "$FLACD"
 cd "$FLACD" || return 1
 
 
-echo -e "\nGenerating Spectrograms in FLAC folder."
-for f in "${FLAC_FILES[@]}"; do
-	local TRACKNAME=$(basename "${f%.flac}")
-	
-	sox "$f" -n remix 1 spectrogram -x 3000 -y 513 -z 120 -w Kaiser -o "$TRACKNAME-full.png"
+#echo -e "\nGenerating Spectrograms in FLAC folder."
+#for f in "${FLAC_FILES[@]}"; do
+#	local TRACKNAME=$(basename "${f%.flac}")
+#	
+#	sox "$f" -n remix 1 spectrogram -x 3000 -y 513 -z 120 -w Kaiser -o "$TRACKNAME-full.png"
+#
+#	sox "$f" -n remix 1 spectrogram -X 500 -y 1025 -z 120 -w Kaiser -S 1:00 -d 0:02 -o "$TRACKNAME-zoom.png"
+#
+#done
+#
+# I think it's better using smoked salmon's spectrograms feature, personally. This requires a little bit of cleanup that's maybe unnecessary.
 
-	sox "$f" -n remix 1 spectrogram -X 500 -y 1025 -z 120 -w Kaiser -S 1:00 -d 0:02 -o "$TRACKNAME-zoom.png"
-
-done
 
 shopt -u nullglob
 echo -e "\nDone."
